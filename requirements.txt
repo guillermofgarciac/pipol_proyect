@@ -1,0 +1,7 @@
+flask
+flask-cors
+pandas
+spacy
+flasgger
+flask-graphql
+graphene
