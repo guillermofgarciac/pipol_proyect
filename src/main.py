@@ -1,5 +1,3 @@
-# main.py
-
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pandas as pd
@@ -20,18 +18,69 @@ nlp = spacy.load("en_core_web_sm")
 data_path = '/app/data/data.csv'
 data = pd.read_csv(data_path)
 
+# Leer el archivo Excel
+def read_excel():
+    df = pd.read_excel('/mnt/data/data.xlsx', sheet_name='Sheet1')
+    return df.to_dict(orient='records')
+
 # Definir los tipos GraphQL
 class CSVRow(ObjectType):
-    column1 = String()
-    column2 = String()
-    column3 = String()
-    # Añade más columnas según sea necesario
+    id_tie_fecha_valor = String()
+    id_cli_cliente = String()
+    id_ga_vista = String()
+    id_ga_tipo_dispositivo = String()
+    id_ga_fuente_medio = String()
+    desc_ga_sku_producto = String()
+    desc_ga_categoria_producto = String()
+    fc_agregado_carrito_cant = String()  # Cambié a String para mantener consistencia
+    fc_ingreso_producto_monto = String()  # Cambié a String para mantener consistencia
+    fc_retirado_carrito_cant = String()  # Cambié a String para mantener consistencia
+    fc_detalle_producto_cant = String()  # Cambié a String para mantener consistencia
+    fc_producto_cant = String()  # Cambié a String para mantener consistencia
+    desc_ga_nombre_producto = String()
+    fc_visualizaciones_pag_cant = String()  # Cambié a String para mantener consistencia
+    flag_pipol = String()
+    SASASA = String()
+    id_ga_producto = String()
+    desc_ga_nombre_producto_1 = String()
+    desc_ga_sku_producto_1 = String()
+    desc_ga_marca_producto = String()
+    desc_ga_cod_producto = String()
+    desc_categoria_producto = String()
+    desc_categoria_prod_principal = String()
+
+# Definir el tipo de dato basado en las columnas del Excel
+class DataType(graphene.ObjectType):
+    id_tie_fecha_valor = graphene.String()
+    id_cli_cliente = graphene.String()
+    id_ga_vista = graphene.String()
+    id_ga_tipo_dispositivo = graphene.String()
+    id_ga_fuente_medio = graphene.String()
+    desc_ga_sku_producto = graphene.String()
+    desc_ga_categoria_producto = graphene.String()
+    fc_agregado_carrito_cant = graphene.Float()
+    fc_ingreso_producto_monto = graphene.Float()
+    fc_retirado_carrito_cant = graphene.Float()
+    fc_detalle_producto_cant = graphene.Float()
+    fc_producto_cant = graphene.Float()
+    desc_ga_nombre_producto = graphene.String()
+    fc_visualizaciones_pag_cant = graphene.Float()
+    flag_pipol = graphene.String()
+    SASASA = graphene.String()
+    id_ga_producto = graphene.String()
+    desc_ga_nombre_producto_1 = graphene.String()
+    desc_ga_sku_producto_1 = graphene.String()
+    desc_ga_marca_producto = graphene.String()
+    desc_ga_cod_producto = graphene.String()
+    desc_categoria_producto = graphene.String()
+    desc_categoria_prod_principal = graphene.String()
 
 class Query(ObjectType):
     hello = String(name=String(default_value="stranger"))
     getData = String()
     getAllRows = List(CSVRow)
     getRowByColumnValue = Field(CSVRow, column_name=String(), value=String())
+    all_data = List(DataType)
 
     def resolve_hello(self, info, name):
         return f"Hello, {name}!"
@@ -49,6 +98,10 @@ class Query(ObjectType):
         if row:
             return CSVRow(**row[0])
         return None
+
+    def resolve_all_data(self, info):
+        data = read_excel()
+        return [DataType(**item) for item in data]
 
 schema = graphene.Schema(query=Query)
 
